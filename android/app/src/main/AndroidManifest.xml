@@ -1,12 +1,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    
+    <!-- Optional: Only needed if your app accesses location in the background -->
+    <!-- <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> -->
 
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
       android:icon="@mipmap/ic_launcher"
-      android:roundIcon="@mipmap/ic_launcher_round"
+      
       android:allowBackup="false"
       android:theme="@style/AppTheme">
       <activity
