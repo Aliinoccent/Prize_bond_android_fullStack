@@ -29,6 +29,8 @@ import ManageStore from "./user/ManageStore";
 import Profile from "./user/Profile";
 import NotificationScreen from "./NotificationScreen";
 import NotificationIcon from "./user/Notification";
+import CustomHeader from "./header";
+
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -67,6 +69,7 @@ const UserTabNavigator = () => {
         component={GeastDashbord} 
         options={{
           headerRight: () => <NotificationIcon />,
+          // headerTitle: () => <CustomHeader />
         }}
       />
       <Tab.Screen 
@@ -74,6 +77,7 @@ const UserTabNavigator = () => {
         component={BrokerList} 
         options={{
           headerRight: () => <NotificationIcon />,
+          
         }}
       />
       <Tab.Screen 
@@ -81,6 +85,7 @@ const UserTabNavigator = () => {
         component={BondMain} 
         options={{
           headerRight: () => <NotificationIcon />,
+          
         }}
       />
       <Tab.Screen 
@@ -101,6 +106,9 @@ const UserNavigation = () => {
       headerStyle: { backgroundColor: '#073C5D' },
       headerTintColor: '#fff',
       headerRight: () => <NotificationIcon />,
+      headerTitle: () => <CustomHeader />,
+      headerTitleAlign: 'center',
+      
     })}
   >
       <Stack.Screen
@@ -118,6 +126,7 @@ const UserNavigation = () => {
       <Stack.Screen name="Broker Store Form" component={BrokerStoreForm} />
       <Stack.Screen name="Manage Stare" component={ManageStore} />
       <Stack.Screen name='Notification' component={NotificationScreen}/>
+     
     </Stack.Navigator>
   );
 };
@@ -155,6 +164,7 @@ const GuestStack = () => {
       screenOptions={{
         headerStyle: { backgroundColor: '#073C5D' },
         headerTintColor: '#fff',
+        // headerTitle: () => <CustomHeader />
       }}
 
 
@@ -214,6 +224,9 @@ const Navigation = () => {
         } else if (parseToken.userType === 'user') {
           setActiveRoute('user');
         }
+        else if(parseToken.userType ==='broker'){
+          setActiveRoute('broker')
+        }
       }
     } catch (error) {
       console.error('Error checking authentication:', error);
@@ -227,7 +240,8 @@ const Navigation = () => {
   return (
     <NavigationContainer>
       {activeRoute === 'Admin' ? <AdminNavigation /> :
-        activeRoute === 'user' ? <UserNavigation />: 
+        activeRoute === 'user' ? <UserNavigation />:
+        activeRoute === 'broker'?<UserNavigation/>: 
         <GuestStack />
       }
     </NavigationContainer>

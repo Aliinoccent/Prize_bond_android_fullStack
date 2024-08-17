@@ -1,67 +1,61 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Avatar, Button, useTheme } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
-import COLORS from '../src/consts/color';
-import ActiveRouteContext from '../../hooks/ActiveRoute';
-import PrizeBondTable from './PrizeBondTable';
+import React, { useContext, useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  RefreshControl,
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Avatar, Button, useTheme } from "react-native-paper";
+import Icon from "react-native-vector-icons/Ionicons";
+import { useNavigation } from "@react-navigation/native";
+import COLORS from "../src/consts/color";
+import ActiveRouteContext from "../../hooks/ActiveRoute";
+import PrizeBondTable from "./PrizeBondTable";
+import Loading from "../loading/lodingIcon";
+
 
 const Profile = () => {
   const [, setActiveRoute] = useContext(ActiveRouteContext);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [buttonText, setButtonText] = useState(''); // State for button text
+  const [buttonText, setButtonText] = useState(""); // State for button text
   const [refreshing, setRefreshing] = useState(false); // State for pull-to-refresh
   const { colors } = useTheme();
   const navigation = useNavigation();
 
   const fetchData = async () => {
     try {
-      const token = await AsyncStorage.getItem('dataTypeToken');
+      const token = await AsyncStorage.getItem("dataTypeToken");
 
       if (!token) {
-        throw new Error('No token found');
+        throw new Error("No token found");
       }
 
-      const response = await fetch('https://prize-bond-backend.vercel.app/api/v1/users/currentUser', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        "https://prize-bond-backend.vercel.app/api/v1/users/currentUser",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch user data');
+        throw new Error("Failed to fetch user data");
       }
 
       const result = await response.json();
-      console.log(result);
+      console.log('this profileuser',result);
 
-      // Set button text based on isBrokerStatus
-      switch (result.data.isBrokerStatus) {
-        case 'not created':
-          setButtonText('Become Broker');
-          break;
-        case 'created':
-          setButtonText('Waiting');
-          break;
-        case 'noStore':
-          setButtonText('Create Store');
-          break;
-        case 'store':
-          setButtonText('Manage Store');
-          break;
-        default:
-          setButtonText('Become Broker');
-          break;
-      }
-
+    
+     
       setUserData(result.data);
-
     } catch (error) {
       setError(error.message);
     } finally {
@@ -72,6 +66,7 @@ const Profile = () => {
 
   useEffect(() => {
     fetchData();
+    handleBecomeBroker();
   }, []);
 
   const handleRefresh = async () => {
@@ -81,70 +76,68 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem('dataTypeToken');
-      setActiveRoute('');
+      await AsyncStorage.removeItem("dataTypeToken");
+      setActiveRoute("");
     } catch (error) {
-      console.error('Error logging out:', error.message);
+      console.error("Error logging out:", error.message);
     }
   };
 
   const handleBecomeBroker = async () => {
     try {
-      const token = await AsyncStorage.getItem('dataTypeToken');
+      const token = await AsyncStorage.getItem("dataTypeToken");
 
       if (!token) {
-        throw new Error('No token found');
+        throw new Error("No token found");
       }
 
-      const response = await fetch('https://prize-bond-backend.vercel.app/api/v1/Form/CheckForm', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        "https://prize-bond-backend.vercel.app/api/v1/Form/CheckForm",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to process request');
+        throw new Error("Failed to process request");
       }
 
       const result = await response.json();
-      console.log(result);
+      console.log('botton result',result);
 
       // Update the button text based on the status
       switch (result.status) {
-        case 'not created':
-          setButtonText('Become Broker');
-          navigation.navigate('Broker Form');
+        case "not created":
+          setButtonText("Become Broker");
+          navigation.navigate("Broker Form");
           break;
-        case 'created':
-          setButtonText('Waiting');
-          Alert.alert('Pending Response', 'Working on it');
+        case "created":
+          setButtonText("Waiting");
+          Alert.alert("Pending Response", "Working on it");
           break;
-        case 'noStore':
-          setButtonText('Create Store');
-          navigation.navigate('Broker Store Form');
+        case "noStore":
+          setButtonText("Create Store");
+          navigation.navigate("Broker Store Form");
           break;
-        case 'store':
-          setButtonText('Manage Store');
-          navigation.navigate('Manage Store');
+        case "store":
+          setButtonText("Manage Store");
+          navigation.navigate("Manage Stare");
           break;
         default:
-          setButtonText('Become Broker');
+          setButtonText("Become Broker");
           break;
       }
-
     } catch (error) {
-      Alert.alert('Error', error.message);
+      Alert.alert("Error", error.message);
     }
   };
 
   if (loading) {
-    return (
-      <View style={styles.centered}>
-        <Text>Loading...</Text>
-      </View>
-    );
+    return <Loading />; // Use the Loading component here
   }
 
   if (error) {
@@ -192,7 +185,11 @@ const Profile = () => {
         </View>
       </View>
       <PrizeBondTable />
-      <Button mode="contained" onPress={handleLogout} style={styles.logoutButton}>
+      <Button
+        mode="contained"
+        onPress={handleLogout}
+        style={styles.logoutButton}
+      >
         Log Out
       </Button>
     </ScrollView>
@@ -202,11 +199,11 @@ const Profile = () => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     padding: 20,
   },
   profileContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   avatar: {
@@ -214,7 +211,7 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: COLORS.blue,
     marginTop: 10,
   },
@@ -224,19 +221,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   infoSection: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
     padding: 20,
     elevation: 2,
     marginBottom: 20,
   },
   infoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginVertical: 10,
   },
   infoText: {
-    color: 'gray',
+    color: "gray",
     fontSize: 18,
     marginLeft: 10,
   },
@@ -244,17 +241,17 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.blue,
     padding: 10,
     borderRadius: 10,
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   centered: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   error: {
-    color: 'red',
+    color: "red",
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });
 

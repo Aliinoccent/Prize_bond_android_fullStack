@@ -121,9 +121,10 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     text: {
-        fontSize: 20,
+        fontSize: 25,
         color: COLORS.blue,
         fontWeight: 'bold',
+        
     },
     blockContainer: {
         flexDirection: 'row',
@@ -139,6 +140,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.blue,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingHorizontal: 20
     },
     buttonText: {
         color: COLORS.white,

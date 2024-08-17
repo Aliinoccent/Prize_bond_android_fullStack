@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const NumberShow = ({ data }) => {
     const { searchData } = useContext(BondContext);
     console.log(typeof(searchData));
+    console.log(searchData);
 
 
 

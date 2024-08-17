@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, Button, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Button, TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import Loading from './loading/lodingIcon'; // Make sure your Loading component path is correct
 
 const BrokerList = () => {
   const [stores, setStores] = useState([]);
@@ -11,7 +12,7 @@ const BrokerList = () => {
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
   const [selectedId, setSelectedId] = useState(null);
-  const [refreshing, setRefreshing] = useState(false); // State for refreshing
+  const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -30,8 +31,7 @@ const BrokerList = () => {
         throw new Error('Network response was not ok');
       }
       const data = await response.json();
-      console.log(data);
-      setStores(prevStores => page === 1 ? data.data : [...prevStores, ...data.data]); // Reset stores if refreshing
+      setStores(prevStores => page === 1 ? data.data : [...prevStores, ...data.data]);
       setTotalPages(data.totalPages);
     } catch (error) {
       setError(error.message);
@@ -40,7 +40,7 @@ const BrokerList = () => {
       }
     } finally {
       setLoading(false);
-      setRefreshing(false); // Reset refreshing state
+      setRefreshing(false);
     }
   };
 
@@ -51,16 +51,16 @@ const BrokerList = () => {
   };
 
   const handleRefresh = () => {
-    setPage(1); // Reset page to 1
-    setRefreshing(true); // Set refreshing state to true
-    fetchStores(); // Fetch data again
+    setPage(1);
+    setRefreshing(true);
+    fetchStores();
   };
 
   const renderFooter = () => {
     if (loading) {
       return (
         <View style={styles.footer}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <Loading /> {/* Use the Loading component here */}
         </View>
       );
     }
@@ -86,23 +86,29 @@ const BrokerList = () => {
   };
 
   return (
-    <FlatList
-      data={stores}
-      keyExtractor={(item, index) => item._id ? `${item._id}-${index}` : `${index}`}
-      renderItem={({ item }) => (
-        <TouchableOpacity onPress={() => handleCardPress(item._id)} style={styles.card}>
-          <Text style={styles.storeName}>{item.Name}</Text>
-          {/* <Text style={styles.storeDescription}>{item.Description}</Text> */}
-          <Text style={styles.storeLocation}>{item.Location}</Text>
-        </TouchableOpacity>
+    <>
+      {loading && page === 1 ? ( // Display the loading component during the initial fetch
+        <Loading />
+      ) : (
+        <FlatList
+          data={stores}
+          keyExtractor={(item, index) => item._id ? `${item._id}-${index}` : `${index}`}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handleCardPress(item._id)} style={styles.card}>
+              <Text style={styles.storeName}>{item.Name}</Text>
+              <Text style={styles.storeDescription}>{item.Description}</Text>
+              <Text style={styles.storeLocation}>{item.Location}</Text>
+            </TouchableOpacity>
+          )}
+          ListFooterComponent={renderFooter}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+          contentContainerStyle={styles.container}
+        />
       )}
-      ListFooterComponent={renderFooter}
-      onEndReached={handleLoadMore}
-      onEndReachedThreshold={0.5}
-      refreshing={refreshing} // Pass refreshing state to FlatList
-      onRefresh={handleRefresh} // Handle pull-to-refresh
-      contentContainerStyle={styles.container}
-    />
+    </>
   );
 };
 
@@ -144,5 +150,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-  
+
 export default BrokerList;

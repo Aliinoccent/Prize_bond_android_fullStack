@@ -19,7 +19,8 @@ const BrokerStoreForm = ({ navigation }) => {
 
     try {
       const token = await AsyncStorage.getItem('dataTypeToken');
-      const response = await fetch('https://prize-bond-backend.vercel.app/api/v1/Store/add', { // Replace with your API endpoint
+      
+      const response = await fetch('https://prize-bond-backend.vercel.app/api/v1/Store/add', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -76,7 +77,7 @@ const BrokerStoreForm = ({ navigation }) => {
             value={number}
             onChangeText={setNumber}
           />
-git push orign master
+
           <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input}

@@ -14,8 +14,17 @@ const BondGet = () => {
 
     const [saveBonds, setsaveBond] = useState([])
     const [searchData,setSearchData]=useState(null);
+    const [refreshing,setRefreshing]=useState(false);
     const handelSaveBond = () => {
         setsaveBond(Savedone);
+        const onRefresh = () => {
+            setRefreshing(true);
+            // Simulate a network request or other operation
+            setTimeout(() => {
+                handelSaveBond(); // Reuse the same handler to reset the bonds
+                setRefreshing(false); // Stop the refreshing animation
+            }, 1000); // 1 second delay to mimic an API call
+        };
     }
     useEffect(() => {
         handelSaveBond();
