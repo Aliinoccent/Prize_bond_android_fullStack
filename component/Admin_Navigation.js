@@ -194,7 +194,7 @@ const AdminNavigation = () => {
       screenOptions={({ navigation }) => ({
         headerStyle: { backgroundColor: '#073C5D' },
         headerTintColor: '#fff',
-        headerRight: () => <NotificationIcon />,
+        
       })}
     >
       <Stack.Screen name="admin" component={AdminScreen} />

@@ -21,7 +21,10 @@ const ManualDialog = () => {
 
     const numberClick = (numbervalue) => {
         setClicknumber(numbervalue);
+
+       
     };
+
 
     const closeDialog = () => {
         setbox(false);

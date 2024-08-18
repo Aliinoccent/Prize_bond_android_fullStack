@@ -9,7 +9,7 @@ import RangeNumbersUi from './rangenumbers';
 
 const prizeContext=createContext();
 const ManualBondClik = ({route}) => {// its check the name of navigation if user click the manual bond then move manual search or if click list from gast dashbrd then in manualbond click has to move list navigation
-  const {bondType}= route.params;
+  const {bondType,bondNumber}= route.params;
   let [prizebond, setPrizeBond] = useState([]);
     const [firstWin, setFirstWin] = useState([]);
     const [secondWin, setSecondWin] = useState([]);
@@ -17,13 +17,15 @@ const ManualBondClik = ({route}) => {// its check the name of navigation if user
     const [firstWinAmount, setFirstWinAmount] = useState(0);
     const [secondWinAmount, setSecondWinAmount] = useState(0);
     const [thirdWinAmount, setThirdWinAmount] = useState(0);
+    
 
   
     
     // console.log('hello worlds')
     useEffect(() => {
       
-      console.log(bondType, 'this type is checked');//manual
+      console.log(bondType, 'this type is checked');//manual4
+      console.log(bondNumber,'this number is checked')
       
       // Fetch or update data based on bondType and bondNumber here
     }, [bondType]);
@@ -41,7 +43,8 @@ const ManualBondClik = ({route}) => {// its check the name of navigation if user
         secondWinAmount,
         setSecondWinAmount,
         thirdWinAmount,
-        setThirdWinAmount
+        setThirdWinAmount,
+        bondNumber
     }}>
        <View style={{ flex: 1 }}>
           <DropDownBarList PrizeBond={prizebond} />
@@ -54,7 +57,21 @@ const ManualBondClik = ({route}) => {// its check the name of navigation if user
     )}
     if(bondType==='lists'){
       return (
-        <prizeContext.Provider value={{thirdWin,setThirdWin,firstWin,setFirstWin,secondWin,setSecondWin}}>
+        <prizeContext.Provider value={{
+          firstWin,
+          setFirstWin,
+          secondWin,
+          setSecondWin,
+          thirdWin,
+          setThirdWin,
+          firstWinAmount,
+          setFirstWinAmount,
+          secondWinAmount,
+          setSecondWinAmount,
+          thirdWinAmount,
+          setThirdWinAmount,
+          bondNumber
+      }}>
           <View style={{ flex: 40 }}>
              <DropDownBarList PrizeBond={prizebond} />
            </View>
@@ -67,9 +84,9 @@ const ManualBondClik = ({route}) => {// its check the name of navigation if user
     }
     if(bondType==='range'){
       return (
-        <prizeContext.Provider value={{thirdWin,setThirdWin,firstWin,setFirstWin,secondWin,setSecondWin}}>
+        <prizeContext.Provider value={{thirdWin,setThirdWin,firstWin,setFirstWin,secondWin,setSecondWin,bondNumber}}>
           <View style={{ flex:1}}>
-             <DropDownBarList PrmizeBond={prizebond} />
+             <DropDownBarList PrizeBond={prizebond} />
            </View>
            <View style={{ flex: 30 ,display:'none'}}>
              <ManualSearchBond setPrizeBond={setPrizeBond} PrizeBond={prizebond}/>

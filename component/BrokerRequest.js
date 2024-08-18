@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import Loading from './loading/lodingIcon';
 
 const BrokerRequest = () => {
   const [forms, setForms] = useState([]);
@@ -8,6 +10,7 @@ const BrokerRequest = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [token, setToken] = useState(null);
+  const [loadingAdd, setLoadingAdd] = useState(false);
 
   useEffect(() => {
     const fetchTokenAndForms = async () => {
@@ -39,7 +42,6 @@ const BrokerRequest = () => {
         },
       });
       const data = await response.json();
-      console.log('API response:', data);
       if (data && data.data && data.data.forms && data.data.totalPages !== undefined) {
         setForms((prevForms) => [...prevForms, ...data.data.forms]);
         setTotalPages(data.data.totalPages);
@@ -86,10 +88,11 @@ const BrokerRequest = () => {
     }
   };
 
-  const AddForm = async (formId) => {
+  const addForm = async (formId) => {
+    setLoadingAdd(true);
     try {
       const response = await fetch(`https://prize-bond-backend.vercel.app/api/v1/Form/update?Form_id=${formId}`, {
-        method: 'PUT', // Changed from POST to PUT
+        method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -98,7 +101,7 @@ const BrokerRequest = () => {
           // Add the required fields for the form here if necessary
         }),
       });
-  
+
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
         const responseText = await response.text();
@@ -106,13 +109,12 @@ const BrokerRequest = () => {
         Alert.alert('Error', 'Unexpected response from server');
         return;
       }
-  
+
       const result = await response.json();
-  
+
       if (result.success) {
         Alert.alert('Success', 'Form added successfully');
         setForms(forms => forms.filter(i => i._id !== formId));
-
       } else {
         console.error('Error adding form:', result.message);
         Alert.alert('Error', result.message);
@@ -120,20 +122,26 @@ const BrokerRequest = () => {
     } catch (error) {
       console.error('Error adding form:', error);
       Alert.alert('Error', 'Failed to add form.');
+    } finally {
+      setLoadingAdd(false);
     }
   };
-  
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      <Text style={styles.title}>Experience: {item.Experience}</Text>
+      <View style={styles.cardHeader}>
+        <Icon name="user" size={30} color="#007bff" />
+        <Text style={styles.title}>{item.Experience}</Text>
+      </View>
       <Text style={styles.description}>Description: {item.Description}</Text>
       <Text style={styles.status}>Status: {item.Status ? 'Active' : 'Inactive'}</Text>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => deleteForm(item._id)}>
+        <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => deleteForm(item._id)}>
+          <Icon name="trash" size={20} color="#fff" />
           <Text style={styles.buttonText}>Delete</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => AddForm(item._id)}>
+        <TouchableOpacity style={[styles.button, styles.addButton]} onPress={() => addForm(item._id)}>
+          <Icon name="plus" size={20} color="#fff" />
           <Text style={styles.buttonText}>Add</Text>
         </TouchableOpacity>
       </View>
@@ -148,8 +156,8 @@ const BrokerRequest = () => {
 
   return (
     <View style={styles.container}>
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
+      {(loading || loadingAdd) ? (
+        <Loading />
       ) : (
         <FlatList
           data={forms}
@@ -167,13 +175,11 @@ const BrokerRequest = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 10,
     backgroundColor: '#f5f5f5',
   },
   list: {
-    padding: 10,
+    paddingVertical: 10,
   },
   card: {
     backgroundColor: '#fff',
@@ -187,9 +193,16 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 5,
   },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#007bff',
+    marginLeft: 10,
   },
   description: {
     fontSize: 16,
@@ -199,20 +212,29 @@ const styles = StyleSheet.create({
   status: {
     fontSize: 16,
     color: '#333',
+    marginBottom: 16,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
   },
   button: {
-    backgroundColor: '#007bff',
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 10,
     borderRadius: 5,
+    width: '48%',
+  },
+  deleteButton: {
+    backgroundColor: '#dc3545',
+  },
+  addButton: {
+    backgroundColor: '#28a745',
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
+    marginLeft: 5,
   },
 });
 

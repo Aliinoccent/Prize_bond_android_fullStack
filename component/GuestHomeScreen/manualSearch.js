@@ -7,8 +7,8 @@ import { prizeContext } from './MnualBondScreen';
 
 
 const ManualSearchBond = ({ setPrizeBond, PrizeBond }) => {
-  const { firstWin, secondWin, thirdWin, boxValuesSet ,firstWinAmount,secondWinAmount,thirdWinAmount} = useContext(prizeContext);
-
+  const { firstWin, secondWin, thirdWin, boxValuesSet ,firstWinAmount,secondWinAmount,thirdWinAmount,bondNumber} = useContext(prizeContext);
+console.log(PrizeBond,'prizebond type')
   const [text, setText] = useState('');
   const [data, setData] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
@@ -33,22 +33,23 @@ const ManualSearchBond = ({ setPrizeBond, PrizeBond }) => {
     let winningBondsList = [];
 
     const bonds = PrizeBond.map(bond => bond.toString());
-
+    console.log(bonds,'bonds print for checking');
+    console.log(bondNumber,'undefine or not');
     bonds.forEach(bond => {
       if (firstWin.includes(bond)) {
         amount += firstWinAmount;
         firstCount += 1;
-        winningBondsList.push({ bond, prize: firstWinAmount});
+        winningBondsList.push({ bondNumber, bond, prize: firstWinAmount }); // Adding bondNumber
       }
       if (secondWin.includes(bond)) {
         amount += secondWinAmount;
         secondCount += 1;
-        winningBondsList.push({ bond, prize: secondWinAmount });
+        winningBondsList.push({ bondNumber, bond, prize: secondWinAmount }); // Adding bondNumber
       }
       if (thirdWin.includes(bond)) {
-        amount +=thirdWinAmount;
+        amount += thirdWinAmount;
         thirdCount += 1;
-        winningBondsList.push({ bond, prize: thirdWinAmount });
+        winningBondsList.push({ bondNumber, bond, prize: thirdWinAmount }); // Adding bondNumber
       }
     });
 

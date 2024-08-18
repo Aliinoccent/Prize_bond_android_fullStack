@@ -1,96 +1,176 @@
 import React from "react";
-import { StyleSheet, Text, View, Button, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from "react-native";
 import COLORS from "../../src/consts/color";
-import STYLES from "../../src/styles";
 import { useNavigation } from "@react-navigation/native";
-
-const backgroundColor = COLORS.white
-const foregroundColor = COLORS.blue;
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const AdminScreen = () => {
-  const navigation=useNavigation()
+  const navigation = useNavigation();
+
+  const navigateTo = (screen) => {
+    navigation.navigate(screen);
+  };
+
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        <View
-          style={{
-            padding: 20,
-            paddingTop: 20,
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "",
-            }}
-          >
-            Price Bond Pro
-          </Text>
-          <Text style={{ marginLeft: "auto" }}>Logo</Text>
+        <Text style={styles.headerTitle}>Dashboard</Text>
+      </View>
+      
+      <View style={styles.dashboardContainer}>
+        {/* Card 1 - Manage List */}
+        <View style={[styles.card, { backgroundColor: "#9b59b6" }]}>
+          <View style={styles.cardContent}>
+            <Icon name="list" size={30} color={COLORS.white} style={styles.cardIcon} />
+            <View style={styles.cardTextContainer}>
+              <Text style={styles.cardTitle}>Manage List</Text>
+              <Text style={styles.cardText}>Manage your lists efficiently.</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.cardButton} 
+              onPress={() => navigateTo("upload list")}
+            >
+              <Text style={styles.buttonText}>View</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        <View
-          style={{
-            padding: 20,
-            paddingBottom: 30,
-            marginTop: "auto",
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "",
-            }}
-          >
-            Admin
-          </Text>
-          <Text style={{ marginLeft: "auto" }}>amount</Text>
+        {/* Card 2 - Broker Requests */}
+        <View style={[styles.card, { backgroundColor: "#3498db" }]}>
+          <View style={styles.cardContent}>
+            <Icon name="users" size={30} color={COLORS.white} style={styles.cardIcon} />
+            <View style={styles.cardTextContainer}>
+              <Text style={styles.cardTitle}>Broker Requests</Text>
+              <Text style={styles.cardText}>Handle broker requests.</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.cardButton} 
+              onPress={() => navigateTo("broker_request")}
+            >
+              <Text style={styles.buttonText}>View</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Card 3 - Broker List */}
+        <View style={[styles.card, { backgroundColor: "#e74c3c" }]}>
+          <View style={styles.cardContent}>
+            <Icon name="address-book" size={30} color={COLORS.white} style={styles.cardIcon} />
+            <View style={styles.cardTextContainer}>
+              <Text style={styles.cardTitle}>Broker List</Text>
+              <Text style={styles.cardText}>View and manage broker list.</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.cardButton} 
+              onPress={() => navigateTo("brokerlist")}
+            >
+              <Text style={styles.buttonText}>View</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Card 4 - Profile */}
+        <View style={[styles.card, { backgroundColor: "#f39c12" }]}>
+          <View style={styles.cardContent}>
+            <Icon name="user" size={30} color={COLORS.white} style={styles.cardIcon} />
+            <View style={styles.cardTextContainer}>
+              <Text style={styles.cardTitle}>Profile</Text>
+              <Text style={styles.cardText}>View and edit your profile.</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.cardButton} 
+              onPress={() => navigateTo("ProfileAdmin")}
+            >
+              <Text style={styles.buttonText}>View</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Card 5 - Lists History */}
+        <View style={[styles.card, { backgroundColor: "#2ecc71" }]}>
+          <View style={styles.cardContent}>
+            <Icon name="history" size={30} color={COLORS.white} style={styles.cardIcon} />
+            <View style={styles.cardTextContainer}>
+              <Text style={styles.cardTitle}>Lists History</Text>
+              <Text style={styles.cardText}>Review your lists history.</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.cardButton} 
+              onPress={() => navigateTo("lists_history")}
+            >
+              <Text style={styles.buttonText}>View</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-      <View style={styles.btnConatiner}>
-        <Btn title="Manage List" onPress={() => navigation.navigate("upload list")} />
-        <Btn title="Broker Requests" onPress={() => navigation.navigate("broker_request")} />
-        <Btn title="Broker List" onPress={() => navigation.navigate("brokerlist")} />
-        <Btn title="Profile" onPress={() => navigation.navigate("ProfileAdmin")} />
-        <Btn title='lists_history' onPress={()=>navigation.navigate('lists_history')}/>
-
-      </View>
-    </View>
+    </ScrollView>
   );
-};
-
-const Btn = ({ title, onPress }) => {
-  return <TouchableOpacity onPress={onPress}  >
-    <Text style={{ color: COLORS.white, fontWeight: "bold" }}>{title}</Text>
-  </TouchableOpacity >
 };
 
 const styles = StyleSheet.create({
   container: {
-    height: "100%",
-    backgroundColor: backgroundColor,
+    flexGrow: 1,
+    backgroundColor: COLORS.white,
+    padding: 20,
   },
   header: {
+    marginBottom: 20,
+  },
+  headerTitle: {
+    fontSize: 30,
+    fontWeight: "bold",
+    color: COLORS.blue,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: COLORS.grey,
+  },
+  dashboardContainer: {
+    flexGrow: 1,
+  },
+  card: {
+    borderRadius: 10,
+    padding: 20,
+    marginBottom: 20,
+    elevation: 5, // Shadow for Android
+    shadowColor: "#000", // Shadow for iOS
+    shadowOffset: { width: 0, height: 2 }, // Shadow offset for iOS
+    shadowOpacity: 0.1, // Shadow opacity for iOS
+    shadowRadius: 5, // Shadow radius for iOS
+  },
+  cardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  cardIcon: {
+    marginRight: 15,
+  },
+  cardTextContainer: {
     flex: 1,
   },
-  btnConatiner: {
-    height: "70%",
-    flexDirection:'column',
-    alignItems:'center',
-    backgroundColor: foregroundColor,
-    marginTop: "auto",
-    borderTopRightRadius: 25,
-    borderTopLeftRadius: 25,
-    padding: 30,
-    gap: 14,
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: COLORS.white,
   },
-  btn: {
-
-  }
+  cardText: {
+    fontSize: 14,
+    color: COLORS.white,
+    marginTop: 5,
+  },
+  cardButton: {
+    backgroundColor: COLORS.white,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    alignSelf: "flex-end", // Align button to the right
+  },
+  buttonText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: COLORS.blue,
+  },
 });
 
 export default AdminScreen;

@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Modal, FlatList } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Modal, FlatList, ActivityIndicator } from "react-native";
 import COLORS from "../src/consts/color";
 
 const PopupSelectYear = ({
@@ -13,7 +13,14 @@ const PopupSelectYear = ({
   selectedMonth,
   functionHandel,
 }) => {
-  // Render item for years and months
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (years.length > 0 || months.length > 0) {
+      setLoading(false);
+    }
+  }, [years, months]);
+
   const renderItem = ({ item }, type) => (
     <TouchableOpacity
       style={[
@@ -38,19 +45,27 @@ const PopupSelectYear = ({
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={styles.headerText}>Select Year</Text>
-          <FlatList
-            data={years}
-            keyExtractor={(item) => item.toString()}
-            renderItem={(props) => renderItem(props, 'year')}
-            contentContainerStyle={styles.list}
-          />
+          {loading ? (
+            <ActivityIndicator size="large" color={COLORS.blue} />
+          ) : (
+            <FlatList
+              data={years}
+              keyExtractor={(item) => item.toString()}
+              renderItem={(props) => renderItem(props, 'year')}
+              contentContainerStyle={styles.list}
+            />
+          )}
           <Text style={styles.headerText}>Select Month</Text>
-          <FlatList
-            data={months}
-            keyExtractor={(item) => item.toString()}
-            renderItem={(props) => renderItem(props, 'month')}
-            contentContainerStyle={styles.list}
-          />
+          {loading ? (
+            <ActivityIndicator size="large" color={COLORS.blue} />
+          ) : (
+            <FlatList
+              data={months}
+              keyExtractor={(item) => item.toString()}
+              renderItem={(props) => renderItem(props, 'month')}
+              contentContainerStyle={styles.list}
+            />
+          )}
           <TouchableOpacity style={styles.submitButton} onPress={functionHandel}>
             <Text style={styles.submitButtonText}>Apply</Text>
           </TouchableOpacity>
@@ -95,13 +110,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   yearItem: {
-    backgroundColor: '#e0f7fa', // Light blue for year
+    backgroundColor: '#e0f7fa',
   },
   monthItem: {
-    backgroundColor: '#e8f5e9', // Light green for month
+    backgroundColor: '#e8f5e9',
   },
   selectedItem: {
-    backgroundColor: COLORS.blue, // Highlighted background color
+    backgroundColor: COLORS.blue,
   },
   itemText: {
     fontSize: 16,

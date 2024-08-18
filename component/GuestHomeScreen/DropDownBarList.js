@@ -54,7 +54,7 @@ const DropDownBarList = ({ PrizeBond }) => {
       const response = await fetch(`https://prize-bond-backend.vercel.app/api/v1/List/getList?month=${month}&year=${year}&type=${bondNumber}`);
       if (response.ok) {
         const data = await response.json();
-        console.log(data.data, 'this is data updated');
+        console.log(data, 'this is data updated');
         if (data.data.length > 0) {
           setThirdWin(data.data[0].ThirdWin);
           setFirstWin(data.data[0].FirstWin);

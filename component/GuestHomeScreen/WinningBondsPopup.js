@@ -3,9 +3,12 @@ import { View, Text, Modal, TouchableOpacity, StyleSheet, FlatList } from 'react
 import COLORS from '../src/consts/color';
 
 const WinningBondsPopup = ({ visible, winningBonds, onClose }) => {
+  console.log(winningBonds)
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
-      <Text style={styles.itemText}>{item.bond}: {item.prize}</Text>
+      <Text style={styles.itemText}>{item.bondNumber}</Text>
+      <Text style={styles.itemText}>{item.bond}</Text>
+      <Text style={styles.itemText}>{item.prize}</Text>
     </View>
   );
 
@@ -19,6 +22,11 @@ const WinningBondsPopup = ({ visible, winningBonds, onClose }) => {
       <View style={styles.modalContainer}>
         <View style={styles.modalView}>
           <Text style={styles.modalTitle}>Winning Bonds</Text>
+          <View style={styles.headerContainer}>
+            <Text style={styles.headerText}>Bond Number</Text>
+            <Text style={styles.headerText}>Prize</Text>
+            <Text style={styles.headerText}>Amount</Text>
+          </View>
           <FlatList
             data={winningBonds}
             renderItem={renderItem}
@@ -59,10 +67,29 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     color: COLORS.blue,
   },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingVertical: 10,
+    backgroundColor: COLORS.blue, // Change background color to blue
+    borderRadius: 10,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  headerText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.white, // Change text color to white
+    flex: 1,
+    textAlign: 'center',
+  },
   listContainer: {
     paddingVertical: 10,
   },
   itemContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     padding: 12,
     marginVertical: 6,
     borderRadius: 10,
@@ -71,10 +98,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
+    width: '100%', // Ensure full width
   },
   itemText: {
-    color: COLORS.black,
-    fontSize: 18,
+    color: 'black',
+    fontSize: 16,
+    textAlign: 'center',
+    width: '33%', // Distribute space equally
   },
   closeButton: {
     marginTop: 20,

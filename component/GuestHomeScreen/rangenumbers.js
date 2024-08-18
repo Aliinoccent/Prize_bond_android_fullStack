@@ -8,7 +8,7 @@ const RangeNumberUi = ({ setPrizeBond }) => {
   const [startRange, setStartRange] = useState('');
   const [endRange, setEndRange] = useState('');
   const [rangeArray, setRangeArray] = useState([]);
-  const { firstWin, secondWin, thirdWin } = useContext(prizeContext);
+  const { firstWin, secondWin, thirdWin, boxValuesSet ,firstWinAmount,secondWinAmount,thirdWinAmount,bondNumber} = useContext(prizeContext);
 
   const [totalAmount, setTotalAmount] = useState(0);
   const [firstWinCount, setFirstWinCount] = useState(0);
@@ -61,19 +61,19 @@ const RangeNumberUi = ({ setPrizeBond }) => {
         amount += 3000000;
         firstCount += 1;
         console.log('First bond win');
-        winningBondsList.push({ bond, prize: '3,000,000' });
+        winningBondsList.push({ bondNumber,bond, prize: '3,000,000' });
       }
       if (secondWin.includes(bond)) {
         amount += 2000000;
         secondCount += 1;
         console.log('Second bond win');
-        winningBondsList.push({ bond, prize: '2,000,000' });
+        winningBondsList.push({bondNumber, bond, prize: '2,000,000' });
       }
       if (thirdWin.includes(bond)) {
         amount += 18000;
         thirdCount += 1;
         console.log('Third bond win');
-        winningBondsList.push({ bond, prize: '18,000' });
+        winningBondsList.push({bondNumber, bond, prize: '18,000' });
       }
     });
 
