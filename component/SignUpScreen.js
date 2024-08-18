@@ -52,7 +52,7 @@ const SignUpScreen = ({ navigation }) => {
     data = { ...data, userType: "user" };
     console.log(data);
     try {
-      const Response = await fetch(
+      const response = await fetch(
         "https://prize-bond-backend.vercel.app/api/v1/users/register",
         {
           method: "POST",
@@ -60,18 +60,23 @@ const SignUpScreen = ({ navigation }) => {
           body: JSON.stringify(data),
         }
       );
-      if (Response.ok) {
-        console.log(Response.status);
-        const dataform = await Response.json();
+  
+      if (response.ok) {
+        const dataform = await response.json();
         console.log(dataform);
         navigation.navigate("signin");
       } else {
-        throw Error("network error");
+        const errorData = await response.json();
+        console.log("Error from backend:", errorData.error);
+        
+        alert(errorData.error || "An error occurred");
       }
-    } catch(error){
-      console.log("fetch error", Response.status, error.message);
+    } catch (error) {
+      console.log("Fetch error:", error.error);
+      alert("Network error: " + error.error);
     }
   };
+  
 
   return (
     <SafeAreaView style={styles.body}>

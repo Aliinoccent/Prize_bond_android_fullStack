@@ -15,7 +15,7 @@ const ManualDialog = () => {
         if (clicknumber != null) {
             setbox(false);
             navigation.navigate('Manual Bonds', { bondNumber: clicknumber, bondType: string });
-            setClicknumber(null); // Reset clicknumber after navigation
+            setClicknumber(null);
         }
     }, [clicknumber]);
 
@@ -34,7 +34,7 @@ const ManualDialog = () => {
                     <View style={styles.header}>
                         <Text style={styles.title}>Select Bond Number</Text>
                         <TouchableOpacity onPress={closeDialog} style={styles.closeheader}>
-                        <Icon name="close" size={24} color="red" />
+                            <Icon name="close" size={24} color="white" />
                         </TouchableOpacity>
                     </View>
                     <View style={styles.content}>
@@ -55,30 +55,43 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: 'rgba(0,0,0,0.6)',
     },
     dialog: {
-        width: '80%',
+        width: '85%',
         padding: 20,
-        borderRadius: 10,
-        backgroundColor: 'white',
+        borderRadius: 15,
+        backgroundColor: COLORS.white,
         alignItems: 'center',
-        elevation: 5,
+        elevation: 10,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
         marginBottom: 20,
+        alignItems: 'center',
     },
     title: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    closeButton: {
         fontSize: 22,
-        fontWeight: '900',
-        color: 'red',
+        fontWeight: 'bold',
+        color: COLORS.dark,
+    },
+    closeheader: {
+        position: 'relative',
+        top: 1,
+        right: 4,
+        zIndex: 1,
+        padding: 4,
+        borderRadius: 5,
+        backgroundColor: COLORS.blue, // original background color
     },
     content: {
         width: '100%',
@@ -86,24 +99,17 @@ const styles = StyleSheet.create({
     button: {
         width: '100%',
         padding: 15,
-        borderRadius: 5,
+        borderRadius: 10,
         backgroundColor: COLORS.blue,
         alignItems: 'center',
         marginVertical: 5,
+        elevation: 3,
     },
     buttonText: {
-        color: 'white',
-        fontSize: 16,
+        color: COLORS.white,
+        fontSize: 18,
+        fontWeight: '600',
     },
-    closeheader:{
-        position:'relitive',
-        top: 1,
-        right: 4,
-        zIndex: 1,
-        padding:4,
-        borderRadius:5,
-        backgroundColor:COLORS.blue
-    }
 });
 
 export default ManualDialog;

@@ -14,17 +14,35 @@ const ManualBondClik = ({route}) => {// its check the name of navigation if user
     const [firstWin, setFirstWin] = useState([]);
     const [secondWin, setSecondWin] = useState([]);
     const [thirdWin, setThirdWin] = useState([]);
+    const [firstWinAmount, setFirstWinAmount] = useState(0);
+    const [secondWinAmount, setSecondWinAmount] = useState(0);
+    const [thirdWinAmount, setThirdWinAmount] = useState(0);
+
+  
     
     // console.log('hello worlds')
     useEffect(() => {
       
-      console.log(bondType, 'this type is checked');
+      console.log(bondType, 'this type is checked');//manual
       
       // Fetch or update data based on bondType and bondNumber here
     }, [bondType]);
   console.log(bondType,'this type is checked');
     if(bondType=='manual'){return (
-     <prizeContext.Provider value={{thirdWin,setThirdWin,firstWin,setFirstWin,secondWin,setSecondWin,}}>
+      <prizeContext.Provider value={{
+        firstWin,
+        setFirstWin,
+        secondWin,
+        setSecondWin,
+        thirdWin,
+        setThirdWin,
+        firstWinAmount,
+        setFirstWinAmount,
+        secondWinAmount,
+        setSecondWinAmount,
+        thirdWinAmount,
+        setThirdWinAmount
+    }}>
        <View style={{ flex: 1 }}>
           <DropDownBarList PrizeBond={prizebond} />
         </View>

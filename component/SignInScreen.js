@@ -39,7 +39,7 @@ const SignInScreen = () => {
 
   const onSubmit = async (data) => {
     setLoading(true);
-
+  
     try {
       const response = await fetch(
         "https://prize-bond-backend.vercel.app/api/v1/users/login",
@@ -49,14 +49,16 @@ const SignInScreen = () => {
           body: JSON.stringify(data),
         }
       );
-
+  
+      const contentType = response.headers.get("Content-Type");
+  
       if (response.ok) {
         const responseData = await response.json();
         const userObject = {
           userType: responseData.data.user.userType,
           Token: responseData.data.accessToken,
         };
-
+  
         if (userObject.userType === "admin") {
           await StoreData(userObject);
           setActiveRoute("Admin");
@@ -65,10 +67,18 @@ const SignInScreen = () => {
           setActiveRoute("user");
         }
       } else {
-        throw new Error("Network error");
+        if (contentType && contentType.includes("application/json")) {
+          const responseData = await response.json();
+          Alert.alert("Error", responseData.error || "Something went wrong");
+        } else {
+          const errorText = await response.text();
+          console.log("Non-JSON error response:", errorText);
+          Alert.alert("Error", "Unexpected error occurred");
+        }
       }
     } catch (error) {
-      Alert.alert("Invalid password or email");
+      console.log('Caught error:', error);
+      Alert.alert("Error", "Network error");
     } finally {
       setLoading(false);
     }

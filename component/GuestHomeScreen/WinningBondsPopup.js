@@ -1,5 +1,3 @@
-// WinningBondsPopup.js
-
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import COLORS from '../src/consts/color';
@@ -13,7 +11,7 @@ const WinningBondsPopup = ({ visible, winningBonds, onClose }) => {
 
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
@@ -25,6 +23,7 @@ const WinningBondsPopup = ({ visible, winningBonds, onClose }) => {
             data={winningBonds}
             renderItem={renderItem}
             keyExtractor={(item, index) => index.toString()}
+            contentContainerStyle={styles.listContainer}
           />
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Text style={styles.closeButtonText}>Close</Text>
@@ -40,42 +39,58 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   modalView: {
     backgroundColor: COLORS.white,
     borderRadius: 20,
     padding: 20,
     alignItems: 'center',
-    elevation: 5,
-    width: '80%', // Added to improve styling
+    elevation: 10,
+    width: '85%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 15,
+    color: COLORS.blue,
+  },
+  listContainer: {
+    paddingVertical: 10,
   },
   itemContainer: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    padding: 12,
+    marginVertical: 6,
+    borderRadius: 10,
+    backgroundColor: COLORS.lightGray,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
   itemText: {
-    color: 'black',
-    fontSize: 16,
+    color: COLORS.black,
+    fontSize: 18,
   },
   closeButton: {
-    marginTop: 30,
+    marginTop: 20,
     backgroundColor: COLORS.blue,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    bottom:20
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   closeButtonText: {
     color: COLORS.white,
     fontSize: 16,
-    
+    fontWeight: '600',
   },
 });
 

@@ -6,7 +6,10 @@ import { prizeContext } from "./MnualBondScreen";
 import COLORS from "../src/consts/color";
 
 const DropDownBarList = ({ PrizeBond }) => {
-  const { thirdWin, setThirdWin, firstWin, setFirstWin, secondWin, setSecondWin } = useContext(prizeContext);
+ 
+  const { thirdWin, setThirdWin, firstWin, setFirstWin, secondWin, setSecondWin,firstWinAmount,setFirstWinAmount,setSecondWinAmount,setThirdWinAmount } = useContext(prizeContext);
+  
+
   const [years, setYears] = useState([]);
   const [months, setMonths] = useState([]);
   const [selectedYear, setSelectedYear] = useState("");
@@ -21,6 +24,7 @@ const DropDownBarList = ({ PrizeBond }) => {
       const response = await fetch(`https://prize-bond-backend.vercel.app/api/v1/List/getList?month=&year=&type=${bondNumber}`);
       if (response.ok) {
         const data = await response.json();
+        console.log('year set from response',data);
         setYears(data.data.year['$in']);
       } else {
         console.log('No response from API');
@@ -50,15 +54,26 @@ const DropDownBarList = ({ PrizeBond }) => {
       const response = await fetch(`https://prize-bond-backend.vercel.app/api/v1/List/getList?month=${month}&year=${year}&type=${bondNumber}`);
       if (response.ok) {
         const data = await response.json();
-        console.log(data, 'this is data');
+        console.log(data.data, 'this is data updated');
         if (data.data.length > 0) {
           setThirdWin(data.data[0].ThirdWin);
           setFirstWin(data.data[0].FirstWin);
           setSecondWin(data.data[0].SecondWin);
+          setFirstWinAmount(data.data[0].FirstPrize);
+          setSecondWinAmount(data.data[0].SecondPrize);
+          setThirdWinAmount(data.data[0].ThirdPrize);
+
+          
+          console.log(data.data[0].FirstPrize);
+          console.log(data.data[0].SecondPrize);
+          console.log(data.data[0].ThirdPrize);
+
+
         } else {
           setThirdWin([]);
           setFirstWin([]);
           setSecondWin([]);
+        
         }
       } else {
         console.log('other list is here');
@@ -70,6 +85,7 @@ const DropDownBarList = ({ PrizeBond }) => {
 
   useEffect(() => {
     fetchYears();
+   
   }, []);
 
   useEffect(() => {

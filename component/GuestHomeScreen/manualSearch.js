@@ -1,22 +1,23 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import COLORS from '../src/consts/color';
-import WinningBondsPopup from './WinningBondsPopup'; // Importing the WinningBondsPopup component
+import WinningBondsPopup from './WinningBondsPopup';
+import NoBondsEnteredPopup from './manual_search_Popup'; // Import the new popup component
 import { prizeContext } from './MnualBondScreen';
-import PopupSelectYear from './PopupSelectYear';
+
 
 const ManualSearchBond = ({ setPrizeBond, PrizeBond }) => {
-  const { firstWin, secondWin, thirdWin, boxValuesSet } = useContext(prizeContext);
+  const { firstWin, secondWin, thirdWin, boxValuesSet ,firstWinAmount,secondWinAmount,thirdWinAmount} = useContext(prizeContext);
 
   const [text, setText] = useState('');
   const [data, setData] = useState([]);
-
   const [totalAmount, setTotalAmount] = useState(0);
   const [firstWinCount, setFirstWinCount] = useState(0);
   const [secondWinCount, setSecondWinCount] = useState(0);
   const [thirdWinCount, setThirdWinCount] = useState(0);
   const [winningBonds, setWinningBonds] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [noBondsEnteredVisible, setNoBondsEnteredVisible] = useState(false); // State for the no bonds popup
 
   useEffect(() => {
     if (PrizeBond.length > 0) {
@@ -25,33 +26,29 @@ const ManualSearchBond = ({ setPrizeBond, PrizeBond }) => {
   }, [PrizeBond]);
 
   const calculatePrizes = () => {
-    console.log('calculate prize bond call');
     let amount = 0;
     let firstCount = 0;
     let secondCount = 0;
     let thirdCount = 0;
     let winningBondsList = [];
 
-    const bonds = PrizeBond.map(bond => bond.toString()); // Convert bond numbers to string for comparison
+    const bonds = PrizeBond.map(bond => bond.toString());
 
     bonds.forEach(bond => {
       if (firstWin.includes(bond)) {
-        amount += 3000000;
+        amount += firstWinAmount;
         firstCount += 1;
-        console.log('first bond win');
-        winningBondsList.push({ bond, prize: '3,000,000' });
+        winningBondsList.push({ bond, prize: firstWinAmount});
       }
       if (secondWin.includes(bond)) {
-        amount += 2000000;
+        amount += secondWinAmount;
         secondCount += 1;
-        console.log('second bond win');
-        winningBondsList.push({ bond, prize: '2,000,000' });
+        winningBondsList.push({ bond, prize: secondWinAmount });
       }
       if (thirdWin.includes(bond)) {
-        amount += 18000;
+        amount +=thirdWinAmount;
         thirdCount += 1;
-        console.log('third bond win');
-        winningBondsList.push({ bond, prize: '18,000' });
+        winningBondsList.push({ bond, prize: thirdWinAmount });
       }
     });
 
@@ -64,7 +61,7 @@ const ManualSearchBond = ({ setPrizeBond, PrizeBond }) => {
     setSecondWinCount(secondCount);
     setThirdWinCount(thirdCount);
     setWinningBonds(winningBondsList);
-    setModalVisible(true); // Show the modal before resetting PrizeBond
+    setModalVisible(true);
   };
 
   const addItem = () => {
@@ -81,13 +78,25 @@ const ManualSearchBond = ({ setPrizeBond, PrizeBond }) => {
   };
 
   const checkItems = () => {
+    if (data.length === 0) {
+      setNoBondsEnteredVisible(true); // Show the no bonds entered popup
+     
+      return;
+    }
+
     setPrizeBond([...PrizeBond, ...data]);
+    console.log('prize bond is ' ,PrizeBond)
     setData([]);
+    calculatePrizes();
   };
 
-  const handleCloseModal = () => {
+  const handleCloseNoBondsPopup = () => {
+    setNoBondsEnteredVisible(false);
+  };
+
+  const handleCloseWinningPopup = () => {
     setModalVisible(false);
-    setPrizeBond([]); // Reset PrizeBond state after closing the modal
+    setPrizeBond([]);
   };
 
   return (
@@ -101,7 +110,9 @@ const ManualSearchBond = ({ setPrizeBond, PrizeBond }) => {
           keyboardType="numeric"
           maxLength={6}
         />
-        <TouchableOpacity style={styles.button} onPress={addItem}><Text style={styles.buttonText}>+</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={addItem}>
+          <Text style={styles.buttonText}>+</Text>
+        </TouchableOpacity>
       </View>
       <FlatList
         data={data}
@@ -110,16 +121,18 @@ const ManualSearchBond = ({ setPrizeBond, PrizeBond }) => {
           <View style={styles.itemContainer}>
             <Text style={styles.itemText}>{item}</Text>
             <TouchableOpacity onPress={() => removeItem(index)}>
-              <Text style={styles.removeButton}>Remove</Text></TouchableOpacity>
+              <Text style={styles.removeButton}>Remove</Text>
+            </TouchableOpacity>
           </View>
         )}
       />
-      <TouchableOpacity style={styles.buttonChekit} onPress={() => { checkItems(); calculatePrizes(); }}>
+      <TouchableOpacity style={styles.buttonChekit} onPress={checkItems}>
         <Text style={styles.ButtonCheckitText}>Check it</Text>
       </TouchableOpacity>
 
       {boxValuesSet && <PopupSelectYear />}
-      <WinningBondsPopup visible={modalVisible} winningBonds={winningBonds} onClose={handleCloseModal} />
+      <WinningBondsPopup visible={modalVisible} winningBonds={winningBonds} onClose={handleCloseWinningPopup} />
+      <NoBondsEnteredPopup visible={noBondsEnteredVisible} onClose={handleCloseNoBondsPopup} />
     </View>
   );
 };
