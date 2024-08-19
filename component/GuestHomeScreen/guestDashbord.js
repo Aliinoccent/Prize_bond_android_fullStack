@@ -39,6 +39,7 @@ const GuestDashboard = () => {
             } catch (error) {
                 console.error('Error fetching user type:', error);
             }
+
         };
         
         fetchUserType();
@@ -59,9 +60,9 @@ const GuestDashboard = () => {
                 <Boxcontext.Provider value={{ box, setbox, string, setString }}>
                     <ManualDialog />
                     <GuestBlock />
-                    <TextBlock />
-                    {userType === 'user' && <PrizeBondTable />} 
-                    {userType==='broker' &&<PrizeBondTable/>}
+                    {/* <TextBlock /> */}
+                    {/* {userType === 'user' && <PrizeBondTable />} 
+                    {userType==='broker' &&<PrizeBondTable/>} */}
                 </Boxcontext.Provider>
             </ScrollView>
         </SafeAreaView>

@@ -8,7 +8,7 @@ const RangeNumberUi = ({ setPrizeBond }) => {
   const [startRange, setStartRange] = useState('');
   const [endRange, setEndRange] = useState('');
   const [rangeArray, setRangeArray] = useState([]);
-  const { firstWin, secondWin, thirdWin, boxValuesSet ,firstWinAmount,secondWinAmount,thirdWinAmount,bondNumber} = useContext(prizeContext);
+  const { firstWin, secondWin, thirdWin, boxValuesSet, firstWinAmount, secondWinAmount, thirdWinAmount, bondNumber } = useContext(prizeContext);
 
   const [totalAmount, setTotalAmount] = useState(0);
   const [firstWinCount, setFirstWinCount] = useState(0);
@@ -16,7 +16,7 @@ const RangeNumberUi = ({ setPrizeBond }) => {
   const [thirdWinCount, setThirdWinCount] = useState(0);
   const [winningBonds, setWinningBonds] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false);
 
   const handleButtonPress = () => {
     if (startRange === '' || endRange === '') {
@@ -29,8 +29,7 @@ const RangeNumberUi = ({ setPrizeBond }) => {
       return false;
     }
 
-    // Ensure numeric comparison but keep as strings for leading zero preservation
-    const start = startRange.padStart(6, '0'); // Ensure both have the same length
+    const start = startRange.padStart(6, '0');
     const end = endRange.padStart(6, '0');
 
     if (parseInt(start, 10) > parseInt(end, 10)) {
@@ -40,7 +39,7 @@ const RangeNumberUi = ({ setPrizeBond }) => {
 
     const rangeValues = [];
     for (let i = parseInt(start, 10); i <= parseInt(end, 10); i++) {
-      rangeValues.push(i.toString().padStart(6, '0')); // Convert each number to string and pad with leading zeros
+      rangeValues.push(i.toString().padStart(6, '0'));
     }
 
     setRangeArray(rangeValues);
@@ -48,8 +47,7 @@ const RangeNumberUi = ({ setPrizeBond }) => {
   };
 
   const calculatePrizes = () => {
-    setLoading(true); // Start loading
-    console.log('Calculating prize bonds...');
+    setLoading(true);
     let amount = 0;
     let firstCount = 0;
     let secondCount = 0;
@@ -58,22 +56,19 @@ const RangeNumberUi = ({ setPrizeBond }) => {
 
     rangeArray.forEach(bond => {
       if (firstWin.includes(bond)) {
-        amount += 3000000;
+        amount += firstWinAmount;
         firstCount += 1;
-        console.log('First bond win');
-        winningBondsList.push({ bondNumber,bond, prize: '3,000,000' });
+        winningBondsList.push({ bondNumber, bond,  });
       }
       if (secondWin.includes(bond)) {
-        amount += 2000000;
+        amount += secondWinAmount;
         secondCount += 1;
-        console.log('Second bond win');
-        winningBondsList.push({bondNumber, bond, prize: '2,000,000' });
+        winningBondsList.push({ bondNumber, bond,  });
       }
       if (thirdWin.includes(bond)) {
-        amount += 18000;
+        amount += thirdWinAmount;
         thirdCount += 1;
-        console.log('Third bond win');
-        winningBondsList.push({bondNumber, bond, prize: '18,000' });
+        winningBondsList.push({ bondNumber, bond,  });
       }
     });
 
@@ -86,8 +81,8 @@ const RangeNumberUi = ({ setPrizeBond }) => {
     setSecondWinCount(secondCount);
     setThirdWinCount(thirdCount);
     setWinningBonds(winningBondsList);
-    setModalVisible(true); // Show the modal before resetting PrizeBond
-    setLoading(false); // Stop loading
+    setModalVisible(true);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -98,7 +93,7 @@ const RangeNumberUi = ({ setPrizeBond }) => {
 
   const handleCloseModal = () => {
     setModalVisible(false);
-    setPrizeBond([]); // Reset PrizeBond state after closing the modal
+    setPrizeBond([]);
   };
 
   const handlePress = () => {
@@ -118,7 +113,7 @@ const RangeNumberUi = ({ setPrizeBond }) => {
           onChangeText={setStartRange}
           keyboardType="numeric"
           maxLength={6}
-          placeholderTextColor="gray"
+          placeholderTextColor={COLORS.placeholder}
         />
         <TextInput
           style={styles.input}
@@ -127,11 +122,11 @@ const RangeNumberUi = ({ setPrizeBond }) => {
           onChangeText={setEndRange}
           keyboardType="numeric"
           maxLength={6}
-          placeholderTextColor="gray"
+          placeholderTextColor={COLORS.placeholder}
         />
-        <Button title="Submit" onPress={handlePress} />
+        <Button title="Submit" onPress={handlePress} color={COLORS.blue} />
       </View>
-      {loading && <ActivityIndicator size="large" color={COLORS.blue} />} 
+      {loading && <ActivityIndicator size="large" color={COLORS.blue} style={styles.loader} />}
       <WinningBondsPopup visible={modalVisible} winningBonds={winningBonds} onClose={handleCloseModal} />
     </View>
   );
@@ -142,34 +137,38 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: COLORS.background,
   },
   box: {
     width: '80%',
     padding: 20,
     borderRadius: 10,
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
+    backgroundColor: COLORS.white,
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
     elevation: 5,
+    alignItems: 'center',
   },
   header: {
     fontSize: 24,
     marginBottom: 20,
-    textAlign: 'center',
     fontWeight: 'bold',
-    color: COLORS.blue,
+    color: COLORS.primary,
   },
   input: {
+    width: '100%',
     height: 40,
-    borderColor: '#ccc',
+    borderColor: COLORS.border,
     borderWidth: 1,
     borderRadius: 5,
     marginBottom: 20,
     paddingHorizontal: 10,
-    color: 'black'
+    color: COLORS.text,
+  },
+  loader: {
+    marginTop: 20,
   },
 });
 

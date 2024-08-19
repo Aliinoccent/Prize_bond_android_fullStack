@@ -13,7 +13,7 @@ const NotificationIcon = () => {
 
   return (
     <TouchableOpacity onPress={handlePress} style={{ marginRight: 15 }}>
-      <Icon name="notifications-outline" size={24} color="black" />
+      <Icon name="notifications-outline" size={24} color="yellow" />
     </TouchableOpacity>
   );
 };

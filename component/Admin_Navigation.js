@@ -99,6 +99,8 @@ const UserTabNavigator = () => {
   );
 };
 
+
+
 const UserNavigation = () => {
   return (
     <Stack.Navigator
@@ -106,7 +108,7 @@ const UserNavigation = () => {
       headerStyle: { backgroundColor: '#073C5D' },
       headerTintColor: '#fff',
       headerRight: () => <NotificationIcon />,
-      headerTitle: () => <CustomHeader />,
+      // headerTitle: () => <CustomHeader />,
       headerTitleAlign: 'center',
       
     })}

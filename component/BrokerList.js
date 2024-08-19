@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Button, TouchableOpacity, Pressable } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Professional icon library
-import Loading from './loading/lodingIcon'; // Ensure this path is correct
-import Modal from 'react-native-modal'; // Import the modal library
-import COLORS from './src/consts/color'; // Import color constants
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import Loading from './loading/lodingIcon'; 
+import Modal from 'react-native-modal'; 
+import COLORS from './src/consts/color'; 
 
 const BrokerList = () => {
   const [stores, setStores] = useState([]);
@@ -16,26 +16,31 @@ const BrokerList = () => {
   const [retryCount, setRetryCount] = useState(0);
   const [selectedId, setSelectedId] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [pressedId, setPressedId] = useState(null); // Track which card is pressed
-  const [isModalVisible, setIsModalVisible] = useState(false); // State for modal visibility
+  const [pressedId, setPressedId] = useState(null); 
+  const [isModalVisible, setIsModalVisible] = useState(false); 
   const [modalMessage, setModalMessage] = useState('');
+  const [query, setQuery] = useState(''); 
+  const [citySuggestions, setCitySuggestions] = useState([]); 
+  const [selectedCity, setSelectedCity] = useState(''); 
   const navigation = useNavigation();
 
   useEffect(() => {
     fetchStores();
-  }, [page, retryCount]);
+  }, [page, retryCount, selectedCity]);
 
   const fetchStores = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`https://prize-bond-backend.vercel.app/api/v1/Store/getAllStore?page=${page}&location=`);
+      const response = await fetch(`https://prize-bond-backend.vercel.app/api/v1/Store/getAllStore?page=${page}&location=${selectedCity}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
       const data = await response.json();
       setStores(prevStores => page === 1 ? data.data : [...prevStores, ...data.data]);
       setTotalPages(data.totalPages);
+      console.log(data);
+
     } catch (error) {
       setError(error.message);
       if (retryCount < 3) {
@@ -45,6 +50,27 @@ const BrokerList = () => {
       setLoading(false);
       setRefreshing(false);
     }
+  };
+
+  const fetchCitySuggestions = async (query) => {
+    if (query.trim() === '') {
+      setCitySuggestions([]);
+      return;
+    }
+    try {
+      const response = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${query}&type=city&filter=countrycode:pk&format=json&apiKey=17b2d4ab90904a148003571b5aecb162`);
+      const data = await response.json();
+      setCitySuggestions(data.results);
+    } catch (error) {
+      console.error('Error fetching city suggestions:', error);
+    }
+  };
+
+  const handleCitySelect = (city) => {
+    setSelectedCity(city);
+    setQuery(city); 
+    setCitySuggestions([]); 
+    setPage(1); 
   };
 
   const handleLoadMore = () => {
@@ -61,19 +87,18 @@ const BrokerList = () => {
 
   const renderFooter = () => {
     if (loading) {
-      return (
-        <View style={styles.footer}>
-          <Loading /> {/* Use the Loading component here */}
-        </View>
-      );
+        return (
+            <View style={styles.footer}>
+                <Loading />
+            </View>
+        );
     }
-    if (error && stores.length === 0) {
-      return (
-        <View style={styles.footer}>
-          <Text style={styles.errorText}>Error loading data. Please try again.</Text>
-          <Button title="Retry" onPress={() => setRetryCount(retryCount + 1)} />
-        </View>
-      );
+    if (error && stores.length === 0 && query.length > 0) { 
+        return (
+            <View style={styles.footer}>
+                <Text style={styles.errorText}>Error loading data. Please try again.</Text>
+            </View>
+        );
     }
     return null;
   };
@@ -90,12 +115,36 @@ const BrokerList = () => {
   };
 
   const getInitial = (name) => {
-    const firstWord = name.split(' ')[0]; // Get the first word
-    return firstWord.charAt(0).toUpperCase(); // Return the first letter of the first word
+    const firstWord = name.split(' ')[0]; 
+    return firstWord.charAt(0).toUpperCase(); 
   };
 
   return (
     <>
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Enter city name"
+          value={query}
+          onChangeText={(text) => {
+            setQuery(text);
+            fetchCitySuggestions(text);
+          }}
+        />
+        {citySuggestions.length > 0 && (
+          <View style={styles.suggestionsContainer}>
+            {citySuggestions.map((suggestion, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => handleCitySelect(suggestion.city)}
+              >
+                <Text style={styles.suggestionText}>{suggestion.city}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+      </View>
+
       {loading && page === 1 ? (
         <Loading />
       ) : (
@@ -106,8 +155,8 @@ const BrokerList = () => {
             <TouchableOpacity
               onPress={() => handleCardPress(item._id)}
               style={[styles.card, pressedId === item._id && styles.cardPressed]}
-              onPressIn={() => setPressedId(item._id)} // Set pressed state
-              onPressOut={() => setPressedId(null)} // Reset pressed state
+              onPressIn={() => setPressedId(item._id)}
+              onPressOut={() => setPressedId(null)}
             >
               <View style={styles.cardContent}>
                 <View style={styles.avatarContainer}>
@@ -124,7 +173,7 @@ const BrokerList = () => {
                   </View>
                   <View style={styles.row}>
                     <Icon name="location-on" size={20} color="#2980b9" style={styles.icon} />
-                    <Text style={styles.storeLocation}>{item.Location}</Text>
+                    <Text style={styles.storeLocation}>{item.Area}, {item.City}</Text>
                   </View>
                 </View>
               </View>
@@ -139,7 +188,6 @@ const BrokerList = () => {
         />
       )}
 
-      {/* Custom Modal */}
       <Modal
         isVisible={isModalVisible}
         onBackdropPress={() => setIsModalVisible(false)}
@@ -173,127 +221,145 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#f8f9fa',
   },
+  searchContainer: {
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginVertical: 10,
+    marginHorizontal: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+  },
+  searchInput: {
+    backgroundColor: '#f1f1f1',
+    padding: 10,
+    borderRadius: 8,
+    fontSize: 16,
+  },
+  suggestionsContainer: {
+    marginTop: 10,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+  },
+  suggestionText: {
+    paddingVertical: 10,
+    fontSize: 16,
+    color: '#2c3e50',
+  },
   card: {
     backgroundColor: '#fff',
     borderRadius: 12,
     marginVertical: 8,
-    marginHorizontal: 10,
+    padding: 16,
     shadowColor: '#000',
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    overflow: 'visible', // Allow shadow to be visible outside the card
+    elevation: 2,
   },
   cardPressed: {
-    shadowColor: '#2980b9',
-    shadowOpacity: 0.6,
-    shadowRadius: 12,
-    elevation: 6,
+    backgroundColor: '#dcdcdc', 
   },
   cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
   },
   avatarContainer: {
-    marginRight: 15,
+    marginRight: 16,
   },
   avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#2980b9',
-    justifyContent: 'center',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#e74c3c',
     alignItems: 'center',
-    elevation: 4,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#fff',
+    justifyContent: 'center',
   },
   avatarText: {
-    fontSize: 24,
     color: '#fff',
+    fontSize: 24,
     fontWeight: 'bold',
   },
   divider: {
     width: 1,
+    backgroundColor: '#dcdcdc', 
     height: '100%',
-    backgroundColor: '#ddd',
-    marginHorizontal: 15,
+    marginRight: 16,
   },
   infoContainer: {
     flex: 1,
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  icon: {
-    marginRight: 10,
-  },
   storeName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2c3e50',
-    marginBottom: 5,
+    color: '#34495e',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  icon: {
+    marginRight: 8,
   },
   storeDescription: {
-    fontSize: 15,
+    fontSize: 14,
     color: '#7f8c8d',
-    flexShrink: 1,
-    flexWrap: 'wrap',
   },
   storeLocation: {
-    fontSize: 15,
-    color: '#95a5a6',
+    fontSize: 14,
+    color: '#7f8c8d',
   },
   footer: {
     paddingVertical: 20,
-    borderTopWidth: 1,
-    borderColor: '#ccc',
-    alignItems: 'center',
   },
   errorText: {
     color: 'red',
-    marginBottom: 10,
+    textAlign: 'center',
   },
   modal: {
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
+    width: 300,
+    padding: 20,
     backgroundColor: '#fff',
     borderRadius: 10,
-    padding: 30,
-    width: '80%',
     alignItems: 'center',
   },
   modalTitle: {
-    fontSize: 23,
-    fontWeight: 'bold',
+    fontSize: 20,
     marginBottom: 20,
-    color:'black'
+    textAlign: 'center',
   },
   modalButton: {
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 5,
-    marginVertical: 5,
+    marginTop: 10,
     width: '100%',
     alignItems: 'center',
   },
   modalButtonSignIn: {
-    backgroundColor: '#2980b9', // Blue color for Sign In button
+    backgroundColor: COLORS.primary,
   },
   modalButtonCancel: {
-    backgroundColor: COLORS.pink, // Red color for Cancel button
+    backgroundColor: COLORS.pink,
   },
   modalButtonText: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

@@ -1,110 +1,133 @@
-import React from "react";
-import { FlatList, TouchableOpacity, Image, View } from "react-native";
+import React, { useState, useEffect } from "react";
+import { FlatList, TouchableOpacity, Text, View, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
-
-
-
+import Loading from "./loading/lodingIcon"; // Ensure the path is correct
 
 const TrendingItem = () => {
-    const [saveBond,setsaveBond]=useState([]);
+    const [saveBond, setSaveBond] = useState([]);
+    const [loading, setLoading] = useState(false); // Add loading state
+    const [navigate, setNavigate] = useState(false); // Add navigate state
+    const [selectedBondType, setSelectedBondType] = useState(null); // Track selected bond type
+    const [type, setType] = useState(0);
     const navigation = useNavigation();
-    const showbond = (type) => {
-        console.log('type', type);
-        if (type == 1) {
-            handel(100);
-            navigation.navigate('Bonds',{saveBond})
-        }
-        else if (type == 2) {
-            handel(200)
-            navigation.navigate('Bonds',{saveBond})
-        }
-        else if (type == 3) {
-            handel(750)
-            navigation.navigate('Bonds',{saveBond})
-        }
-        else if (type == 4) {
-            handel(1500)
-            navigation.navigate('Bonds',{saveBond})
 
+    const showBond = async (type) => {
+        const bondData = {
+            '1': 100,
+            '2': 200,
+            '3': 750,
+            '4': 1500
+        }[type];
+    
+        if (bondData) {
+            setLoading(true); // Start loading
+            setType(bondData); // Set the bond data type
+            setSelectedBondType(type); // Set selected bond type
+            await handle(bondData);
+        } else {
+            console.log('Invalid type');
         }
-
-        else
-            console.log('it not provide execte data')
-    }
-    const handel = async (data) => {
-        
-        
+    };
+    
+    const handle = async (data) => {
         const token = await AsyncStorage.getItem('dataTypeToken');
         const TokenParse = JSON.parse(token);
-        console.log(TokenParse.Token);
-        console.log('data', data);
         try {
-            const Response = await fetch(`https://prize-bond-backend.vercel.app/api/v1/bonds/allBond?BondType=${data}`, {
-                method: 'get',
+            const response = await fetch(`https://prize-bond-backend.vercel.app/api/v1/bonds/allBond?BondType=${data}`, {
+                method: 'GET',
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${TokenParse.Token}`
                 }
             });
-            if (Response.ok) {
-                console.log(Response.status);
-                const dataform = await Response.json();
-                // console.log(dataform.data)
-                setsaveBond(dataform.data);
-                // setsaveBond(()=>dataform.data.forEach(bond => console.log(bond.PrizeBondNumber)))
-                
-                
+            if (response.ok) {
+                const dataform = await response.json();
+                setSaveBond(dataform.data);
+                setLoading(false); // End loading
+                setNavigate(true); // Set navigate flag
+            } else {
+                throw new Error("Network error");
             }
-            else {
-                throw Error("network error");
-            }
-        } catch {
-            console.log("fatch error", Response.status);
+        } catch (error) {
+            console.log("Fetch error", error.message);
+            setLoading(false); // End loading on error
         }
     };
-    // Import locally saved images
-    const images = [
-        { id: "1", thumbnail: require("../component/src/assets/100.png") },
-        { id: "2", thumbnail: require("../component/src/assets/200.jpg") },
-        { id: "3", thumbnail: require("../component/src/assets/750.png") },
-        { id: "4", thumbnail: require("../component/src/assets/1500.jpg") }
+
+    useEffect(() => {
+        if (navigate && saveBond.length > 0) {
+            navigation.navigate('Bonds', { saveBond, BondType: selectedBondType });
+            setNavigate(false); // Reset navigate flag
+        }
+    }, [navigate, saveBond, navigation, selectedBondType]);
+    
+    const bonds = [
+        { id: "1", amount: 100, color: '#FFDDC1', fontSize: 28 },
+        { id: "2", amount: 200, color: '#FFABAB', fontSize: 28 },
+        { id: "3", amount: 750, color: '#FFC3A0', fontSize: 24 },
+        { id: "4", amount: 1500, color: '#FF677D', fontSize: 24 }
     ];
 
     return (
-
-        <FlatList
-            data={images}
-            horizontal
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-                <TouchableOpacity
-                    style={{ marginRight: 5 }}
-                    activeOpacity={0.7}
-                    onPress={() => showbond(item.id)} // Example onPress action
-                >
-                    <Image
-                        source={item.thumbnail}
-                        style={{
-                            width: 200,
-                            height: 200,
-                            borderRadius: 33,
-                            marginBottom: 5,
-                            overflow: "hidden",
-                            shadowColor: "#000",
-                            shadowOpacity: 0.4,
-                            shadowRadius: 5,
-                            elevation: 5,
-
-                        }}
-                        resizeMode="contain" // Ensure the full image is displayed
-                    />
-                </TouchableOpacity>
-
+        <View style={{ flex: 1 }}>
+            {loading ? (
+                <Loading /> // Show loading component when fetching
+            ) : (
+                <FlatList
+                    data={bonds}
+                    horizontal
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity
+                            style={[styles.cardContainer, { backgroundColor: item.color }]}
+                            activeOpacity={0.9}
+                            onPress={() => showBond(item.id)}
+                        >
+                            <View style={styles.card}>
+                                <Text style={[styles.amountText, { fontSize: item.fontSize }]}>₨ {item.amount}</Text>
+                                <Text style={styles.descriptionText}>Prize Bond</Text>
+                            </View>
+                        </TouchableOpacity>
+                    )}
+                />
             )}
-        />
+        </View>
     );
 };
+
+const styles = StyleSheet.create({
+    cardContainer: {
+        marginRight: 15,
+        marginVertical: 10,
+        borderRadius: 12,
+        padding: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.4,
+        shadowRadius: 6,
+        elevation: 5,
+        width: 160,
+        height: 200,
+    },
+    card: {
+        flex: 1,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+        borderColor: '#ddd',
+        borderWidth: 1,
+        backgroundColor: 'transparent',
+    },
+    amountText: {
+        fontWeight: 'bold',
+        color: 'black',
+    },
+    descriptionText: {
+        fontSize: 16,
+        color: 'black',
+        marginTop: 5,
+    },
+});
 
 export default TrendingItem;

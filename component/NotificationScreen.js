@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -64,14 +64,17 @@ const NotificationScreen = () => {
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       {bonds.length > 0 ? (
         bonds.map((bond, index) => (
-          <View key={index} style={styles.bondCard}>
-            <Text style={styles.bondTitle}>{bond.PrizeBondType}</Text>
+          <TouchableOpacity key={index} style={styles.bondCard} activeOpacity={0.8}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.bondTitle}>{bond.PrizeBondType}</Text>
+              <Icon name="notifications" size={24} color="#FF6F61" />
+            </View>
             <Text style={styles.bondText}>Number: <Text style={styles.bondTextHighlight}>{bond.PrizeBondNumber}</Text></Text>
             <Text style={styles.bondText}>Amount Won: <Text style={styles.bondTextHighlight}>${bond.AmountWin}</Text></Text>
             <Text style={styles.bondText}>Positions: <Text style={styles.bondTextHighlight}>{bond.WinPosition.join(', ')}</Text></Text>
             <Text style={styles.bondText}>Month: <Text style={styles.bondTextHighlight}>{bond.Month}</Text></Text>
             <Text style={styles.bondText}>Year: <Text style={styles.bondTextHighlight}>{bond.Year}</Text></Text>
-          </View>
+          </TouchableOpacity>
         ))
       ) : (
         <Text style={styles.noBondsText}>No winning bonds found</Text>
@@ -90,6 +93,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     paddingVertical: 20,
+    paddingHorizontal: 10,
   },
   loadingText: {
     fontSize: 18,
@@ -103,23 +107,26 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   bondCard: {
-    marginBottom: 20,
-    padding: 20,
+    marginBottom: 15,
+    padding: 15,
     borderRadius: 12,
     backgroundColor: '#FFFFFF',
-    elevation: 5,
+    elevation: 3,
     shadowColor: '#000',
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 3 },
     shadowRadius: 6,
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
   },
   bondTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#1D3557',
-    marginBottom: 10,
   },
   bondText: {
     fontSize: 16,

@@ -17,7 +17,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ActiveRouteContext from "../hooks/ActiveRoute";
-import Loading from "./loading/lodingIcon"; // Make sure your loading component is correctly named and imported
+import Loading from "./loading/lodingIcon";
+import Icon from 'react-native-vector-icons/MaterialIcons'; // Import the icons you want to use
 
 const SignInScreen = () => {
   const navigation = useNavigation();
@@ -126,38 +127,45 @@ const SignInScreen = () => {
         </View>
 
         <View style={[STYLES.inputContainer, styles.marginVertical]}>
-          <Controller
-            control={control}
-            render={({ field }) => (
-              <TextInput
-                placeholder="Email"
-                placeholderTextColor="grey"
-                style={[STYLES.input, { color: "black" }]}
-                onChangeText={field.onChange}
-                value={field.value}
-              />
-            )}
-            name="email"
-          />
+          <View style={styles.inputWithIcon}>
+            <Icon name="email" size={24} color="grey" style={styles.icon} />
+            <Controller
+              control={control}
+              render={({ field }) => (
+                <TextInput
+                  placeholder="Email"
+                  placeholderTextColor="grey"
+                  style={[STYLES.input, { color: "black", flex: 1 }]}
+                  onChangeText={field.onChange}
+                  value={field.value}
+                />
+              )}
+              name="email"
+            />
+          </View>
           {errors.email && (
             <Text style={styles.errorText}>{errors.email.message}</Text>
           )}
         </View>
 
         <View style={[STYLES.inputContainer, styles.marginVertical]}>
-          <Controller
-            control={control}
-            render={({ field }) => (
-              <TextInput
-                placeholder="Password"
-                placeholderTextColor="grey"
-                style={STYLES.input}
-                onChangeText={field.onChange}
-                value={field.value}
-              />
-            )}
-            name="password"
-          />
+          <View style={styles.inputWithIcon}>
+            <Icon name="lock" size={24} color="grey" style={styles.icon} />
+            <Controller
+              control={control}
+              render={({ field }) => (
+                <TextInput
+                  placeholder="Password"
+                  placeholderTextColor="grey"
+                  style={[STYLES.input, { flex: 1 }]}
+                  secureTextEntry
+                  onChangeText={field.onChange}
+                  value={field.value}
+                />
+              )}
+              name="password"
+            />
+          </View>
           {errors.password && (
             <Text style={styles.errorText}>{errors.password.message}</Text>
           )}
@@ -197,11 +205,11 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     backgroundColor: COLORS.white,
-    paddingHorizontal: 20, // Added padding for the main content
+    paddingHorizontal: 20,
   },
   textView: {
     flexDirection: "row",
-    justifyContent: "center", // Center horizontally
+    justifyContent: "center",
     alignItems: "center",
     marginTop: 20,
   },
@@ -211,7 +219,7 @@ const styles = StyleSheet.create({
   },
   title: {
     alignItems: "center",
-    marginTop: 20, // Added margin for spacing
+    marginTop: 20,
   },
   welcome: {
     fontSize: 25,
@@ -236,7 +244,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: "red",
-    marginTop: 5, // Added margin for spacing errors from input
+    marginTop: 5,
   },
   loadingContainer: {
     flex: 1,
@@ -251,7 +259,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   marginVertical: {
-    marginVertical: 10, // Added margin for consistent spacing between elements
+    marginVertical: 10,
+  },
+  inputWithIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  icon: {
+    marginRight: 10,
   },
 });
 

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,12 +10,11 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Avatar, Button, useTheme } from "react-native-paper";
 import Icon from "react-native-vector-icons/Ionicons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import COLORS from "../src/consts/color";
 import ActiveRouteContext from "../../hooks/ActiveRoute";
 import PrizeBondTable from "./PrizeBondTable";
 import Loading from "../loading/lodingIcon";
-
 
 const Profile = () => {
   const [, setActiveRoute] = useContext(ActiveRouteContext);
@@ -51,11 +50,12 @@ const Profile = () => {
       }
 
       const result = await response.json();
-      console.log('this profileuser',result);
+      console.log('this profileuser', result);
 
-    
-     
       setUserData(result.data);
+
+      // Fetch the status for the button text
+      await fetchButtonStatus(token);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -64,33 +64,8 @@ const Profile = () => {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-    handleBecomeBroker();
-  }, []);
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await fetchData(); // Refetch data on refresh
-  };
-
-  const handleLogout = async () => {
+  const fetchButtonStatus = async (token) => {
     try {
-      await AsyncStorage.removeItem("dataTypeToken");
-      setActiveRoute("");
-    } catch (error) {
-      console.error("Error logging out:", error.message);
-    }
-  };
-
-  const handleBecomeBroker = async () => {
-    try {
-      const token = await AsyncStorage.getItem("dataTypeToken");
-
-      if (!token) {
-        throw new Error("No token found");
-      }
-
       const response = await fetch(
         "https://prize-bond-backend.vercel.app/api/v1/Form/CheckForm",
         {
@@ -107,25 +82,21 @@ const Profile = () => {
       }
 
       const result = await response.json();
-      console.log('botton result',result);
+      console.log('button result', result);
 
       // Update the button text based on the status
       switch (result.status) {
         case "not created":
           setButtonText("Become Broker");
-          navigation.navigate("Broker Form");
           break;
         case "created":
           setButtonText("Waiting");
-          Alert.alert("Pending Response", "Working on it");
           break;
         case "noStore":
           setButtonText("Create Store");
-          navigation.navigate("Broker Store Form");
           break;
         case "store":
           setButtonText("Manage Store");
-          navigation.navigate("Manage Stare");
           break;
         default:
           setButtonText("Become Broker");
@@ -133,6 +104,45 @@ const Profile = () => {
       }
     } catch (error) {
       Alert.alert("Error", error.message);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [])
+  );
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchData(); // Refetch data on refresh
+  };
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem("dataTypeToken");
+      setActiveRoute("");
+    } catch (error) {
+      console.error("Error logging out:", error.message);
+    }
+  };
+
+  const handleBecomeBroker = () => {
+    switch (buttonText) {
+      case "Become Broker":
+        navigation.navigate("Broker Form");
+        break;
+      case "Waiting":
+        Alert.alert("Pending Response", "Working on it");
+        break;
+      case "Create Store":
+        navigation.navigate("Broker Store Form");
+        break;
+      case "Manage Store":
+        navigation.navigate("Manage Stare");
+        break;
+      default:
+        break;
     }
   };
 
@@ -148,6 +158,9 @@ const Profile = () => {
     );
   }
 
+  // Get the first letter of the user's username
+  const avatarText = userData?.username ? userData.username.charAt(0).toUpperCase() : '';
+
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -160,7 +173,7 @@ const Profile = () => {
       }
     >
       <View style={styles.profileContainer}>
-        <Avatar.Icon size={100} icon="account" style={styles.avatar} />
+        <Avatar.Text size={100} label={avatarText} style={styles.avatar} />
         <Text style={styles.username}>{userData.username}</Text>
         <Button
           mode="outlined"

@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { Text, View, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
+import React, { useEffect, useState } from 'react';
+import { Text, View, FlatList, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import Loading from '../loading/lodingIcon'; // Ensure this is the correct path
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const handelapilist = async (type) => {
     try {
@@ -9,7 +11,6 @@ const handelapilist = async (type) => {
         });
 
         if (response.ok) {
-            console.log('Data fetched successfully');
             const data = await response.json();
             return data;
         } else {
@@ -33,9 +34,12 @@ const DatesList = () => {
             if (data) {
                 setData(data.data);
             } else {
-                console.log('Empty response data');
+                setData([]);
             }
             setLoading(false);
+        }).catch(() => {
+            setLoading(false);
+            setData([]);
         });
     };
 
@@ -48,43 +52,49 @@ const DatesList = () => {
             style={[styles.button, selectedType === type ? styles.selectedButton : null]}
             onPress={() => setSelectedType(type)}
         >
+            <Icon name="filter-list" size={20} color="#ffffff" />
             <Text style={styles.buttonText}>{type}</Text>
         </TouchableOpacity>
     );
 
     const renderItem = ({ item }) => (
         <View style={styles.itemContainer}>
-            <Text style={styles.itemText}>Date: {item.Date}</Text>
-            <Text style={styles.itemText}>Month: {item.Month}</Text>
-            <Text style={styles.itemText}>Year: {item.Year}</Text>
+            <Icon name="date-range" size={24} color="#333" style={styles.icon} />
+            <View style={styles.itemTextContainer}>
+                <Text style={styles.itemText}>Date: {item.Date}</Text>
+                <Text style={styles.itemText}>Month: {item.Month}</Text>
+                <Text style={styles.itemText}>Year: {item.Year}</Text>
+            </View>
         </View>
     );
 
     return (
         <View style={styles.container}>
-            <View style={styles.buttonContainer}>
-                {renderButton("100")}
-                {renderButton("200")}
-                {renderButton("750")}
-                {renderButton("1500")}
-            </View>
-
-            {loading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#0000ff" />
+            <ScrollView>
+                <View style={styles.buttonContainer}>
+                    {renderButton("100")}
+                    {renderButton("200")}
+                    {renderButton("750")}
+                    {renderButton("1500")}
                 </View>
-            ) : (
-                isData.length > 0 ? (
-                    <FlatList
-                        data={isData}
-                        renderItem={renderItem}
-                        keyExtractor={(item, index) => index.toString()}
-                        contentContainerStyle={styles.list}
-                    />
+
+                {loading ? (
+                    <Loading />  // Use your Loading component here
                 ) : (
-                    <Text style={styles.noDataText}>No data available</Text>
-                )
-            )}
+                    isData.length > 0 ? (
+                        <FlatList
+                            data={isData}
+                            renderItem={renderItem}
+                            keyExtractor={(item, index) => index.toString()}
+                            contentContainerStyle={styles.list}
+                        />
+                    ) : (
+                        <Text style={styles.noDataText}>No data available</Text>
+                    )
+                )}
+            </ScrollView>
+
+            {loading && <Loading />}  
         </View>
     );
 };
@@ -94,6 +104,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
         backgroundColor: '#f0f0f0',
+        position: 'relative',  // Ensure the container is positioned relative
     },
     buttonContainer: {
         flexDirection: 'row',
@@ -101,36 +112,43 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     button: {
+        flexDirection: 'row',
+        alignItems: 'center',
         paddingVertical: 10,
         paddingHorizontal: 20,
-        backgroundColor: '#dddddd',
+        backgroundColor: '#007bff',
         borderRadius: 8,
     },
     selectedButton: {
-        backgroundColor: '#0080ff',
+        backgroundColor: '#0056b3',
     },
     buttonText: {
         fontSize: 16,
-        color: '#333333',
+        color: '#ffffff',
+        marginLeft: 8,
     },
     list: {
         paddingBottom: 20,
     },
     itemContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
         backgroundColor: '#ffffff',
         padding: 16,
         marginBottom: 10,
         borderRadius: 8,
         elevation: 2,
     },
+    itemTextContainer: {
+        marginLeft: 16,
+    },
     itemText: {
         color: '#333333',
         fontSize: 16,
     },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+    icon: {
+        width: 30,
+        height: 30,
     },
     noDataText: {
         textAlign: 'center',

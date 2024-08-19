@@ -1,21 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { Text, TextInput, View, FlatList, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect } from "react";
+import { Text, TextInput, View, FlatList, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { useForm, Controller } from "react-hook-form";
 import Add_Plus from "./Add_Plus";
-import STYLES from "./src/styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import COLORS from "./src/consts/color";
 
 const UserAddBond = ({ route, navigation }) => {
     const { datatype } = route.params || {}; // Extract datatype from route params
-    console.log('Received datatype:', datatype);
-
     const { handleSubmit, control, reset } = useForm();
-
-    const [bondnum, setbondnum] = useState([]);
+    const [bondnum, setBondnum] = useState([]);
     const [inputError, setInputError] = useState('');
 
-    const onsubmit = (data) => {
+    const onSubmit = (data) => {
         const data_Value = data.Type;
 
         // Manual validation
@@ -25,17 +21,14 @@ const UserAddBond = ({ route, navigation }) => {
         }
 
         setInputError('');
-        setbondnum((predata) => [...predata, data_Value]);
+        setBondnum((prevData) => [...prevData, data_Value]);
         reset({ Type: '' }); // Reset the input field after submission
     };
 
     const removeBond = (index) => {
-        setbondnum((predata) => {
-            // Create a shallow copy of the current state array
-            const newData = [...predata];
-            // Remove the element at the specified index
+        setBondnum((prevData) => {
+            const newData = [...prevData];
             newData.splice(index, 1);
-            // Return the updated array
             return newData;
         });
     };
@@ -45,27 +38,17 @@ const UserAddBond = ({ route, navigation }) => {
         PrizeBondNumbe: bondnum
     };
 
-    console.log(data);
-
-    useEffect(() => {
-        console.log(bondnum);
-    }, [bondnum]);
-
-    const DataSave = async () => {
+    const dataSave = async () => {
         if (bondnum.length === 0) {
             Alert.alert("Error", "Please add at least one bond number.");
             return;
         }
 
         const token = await AsyncStorage.getItem('dataTypeToken');
-        console.log(token)
         const TokenParse = JSON.parse(token);
-        console.log('data save');
-        console.log(TokenParse.Token)
-        console.log('convert data in number', data);
        
         try {
-            const Response = await fetch(
+            const response = await fetch(
               "https://prize-bond-backend.vercel.app/api/v1/bonds/add",
               {
                 method: "POST",
@@ -75,100 +58,147 @@ const UserAddBond = ({ route, navigation }) => {
                 },
                 body: JSON.stringify(data)
             });
-            if (Response.ok) {
-              console.log(Response.status);
-              const dataform = await Response.json();
-              console.log(dataform);
+            if (response.ok) {
+              const dataform = await response.json();
+              console.log('dataform , data save succss',dataform);
               Alert.alert("Success", `${bondnum.length} prize bonds have been saved.`);
-              setbondnum([]); // Clear the list of prize bonds
+              setBondnum([]); // Clear the list of prize bonds
               navigation.navigate("User");
             } else {
-              throw Error("network error");
+              throw new Error("Network error");
             }
         } catch (error) {
-            console.log("fetch error", error);
             Alert.alert("Error", "An error occurred while saving the data.");
         }
     };
 
     return (
-        <>
-            <View style={{ flexDirection: "column", justifyContent: 'space-between', padding: 30 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Controller
-                        control={control}
-                        render={({ field }) => (
-                            <View style={{ flex: 1, height:50,}}>
-                                <TextInput
-                                    style={{ 
-                                        flex: 1,
-                                        color: 'black',
-                                        backgroundColor: 'white',
-                                        borderTopLeftRadius: 30,
-                                        borderRadius: 30,
-                                        borderWidth: 1,
-                                        borderColor: 'black',
-                                        paddingLeft: 20,
-                                        height: 40 // Ensure consistent height
-                                    }}
-                                    placeholder="Add bond"
-                                    onChangeText={field.onChange}
-                                    value={field.value}
-                                />
-                            </View>
-                        )}
-                        name="Type"
-                    />
-                    <Add_Plus handleClick={handleSubmit(onsubmit)} />
-                </View>
-                
-                {/* Error message */}
-                {inputError ? (
-                    <Text style={{ color: 'red', marginTop: 5, marginLeft: 20 }}>{inputError}</Text>
-                ) : null}
-
-                {/* Display bondnum using FlatList */}
-                <FlatList
-                    data={bondnum}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item, index }) => (
-                        <View style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
-                            <Text style={{ 
-                                borderRadius: 20,
-                                color: COLORS.white,
-                                margin: 10,
-                                width: '60%', // Fixed width for consistency
-                                height: 40,
-                                backgroundColor: COLORS.light,
-                                textAlign: 'center',
-                                paddingVertical: 10
-                            }}>
-                                {item}
-                            </Text>
-                            <TouchableOpacity
-                                style={{ 
-                                    margin: 10,
-                                    backgroundColor: COLORS.blue,
-                                    padding: 10,
-                                    borderRadius: 20
-                                }}
-                                onPress={() => removeBond(index)}
-                            >
-                                <Text style={{ color: 'white' }}>Remove</Text>
-                            </TouchableOpacity>
+        <View style={styles.container}>
+            <View style={styles.inputContainer}>
+                <Controller
+                    control={control}
+                    render={({ field }) => (
+                        <View style={styles.textInputContainer}>
+                            <TextInput
+                                style={styles.textInput}
+                                placeholder="Add bond"
+                                onChangeText={field.onChange}
+                                value={field.value}
+                            />
                         </View>
                     )}
-                    contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 10 }}
+                    name="Type"
                 />
+                <Add_Plus handleClick={handleSubmit(onSubmit)} />
             </View>
+
+            {/* Error message */}
+            {inputError ? (
+                <Text style={styles.errorText}>{inputError}</Text>
+            ) : null}
+
+            {/* Display bondnum using FlatList */}
+            <FlatList
+                data={bondnum}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item, index }) => (
+                    <View style={styles.bondItemContainer}>
+                        <Text style={styles.bondItemText}>
+                            {item}
+                        </Text>
+                        <TouchableOpacity
+                            style={styles.removeButton}
+                            onPress={() => removeBond(index)}
+                        >
+                            <Text style={styles.removeButtonText}>Remove</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+                contentContainerStyle={styles.flatListContent}
+            />
+
             <TouchableOpacity
-                style={STYLES.btnPrimary}
-                onPress={() => DataSave()}
+                style={styles.saveButton}
+                onPress={() => dataSave()}
             >
-                <Text style={STYLES.buttonText}>Save Bond</Text>
+                <Text style={styles.saveButtonText}>Save Bond</Text>
             </TouchableOpacity>
-        </>
+        </View>
     );
-}
+};
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 20,
+        justifyContent: 'space-between',
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    textInputContainer: {
+        flex: 1,
+        marginRight: 10,
+    },
+    textInput: {
+        height: 50,
+        backgroundColor: 'white',
+        borderRadius: 25,
+        borderWidth: 1,
+        borderColor: COLORS.grey,
+        paddingHorizontal: 15,
+        fontSize: 16,
+    },
+    errorText: {
+        color: 'red',
+        marginTop: 5,
+        marginLeft: 10,
+    },
+    bondItemContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+        padding: 10,
+        backgroundColor: COLORS.light,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 2,
+    },
+    bondItemText: {
+        flex: 1,
+        color: COLORS.white,
+        textAlign: 'center',
+        fontSize: 16,
+    },
+    removeButton: {
+        backgroundColor: COLORS.red,
+        paddingHorizontal: 15,
+        paddingVertical: 5,
+        borderRadius: 20,
+    },
+    removeButtonText: {
+        color: 'white',
+        fontSize: 14,
+    },
+    flatListContent: {
+        paddingBottom: 80, // Adjust padding to avoid overlapping with the button
+    },
+    saveButton: {
+        backgroundColor: COLORS.blue,
+        paddingVertical: 15,
+        borderRadius: 25,
+        alignItems: 'center',
+    },
+    saveButtonText: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+});
 
 export default UserAddBond;
